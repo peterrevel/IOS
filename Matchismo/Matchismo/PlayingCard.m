@@ -15,16 +15,24 @@
 - (int)match:(NSArray *)otherCards{
     int score = 0;
     
-    if ([otherCards count] == 1) {
-        PlayingCard *otherCard = [otherCards firstObject];
-        if ([self.suit isEqualToString:otherCard.suit]) {
-            score = 1;
-        } else if(self.rank == otherCard.rank) {
-            score = 4;
+    if ([otherCards count]) {
+        for (PlayingCard *otherCard in otherCards) {
+            if ([self.suit isEqualToString:otherCard.suit]) {
+                score += 1;
+            } else if(self.rank == otherCard.rank) {
+                score += 4;
+            }
         }
     }
     
-    return score;
+    // after having copmared all cards to the current card
+    // the next card in otherCards must be compared to all other cards in
+    // otherCards
+    PlayingCard *nextCard = [otherCards lastObject];
+    NSMutableArray *otherCardsMutable = [[NSMutableArray alloc] initWithArray:otherCards];
+    [otherCardsMutable removeLastObject];
+    
+    return score + [nextCard match:otherCardsMutable];
 }
 
 - (NSString *)contents{
