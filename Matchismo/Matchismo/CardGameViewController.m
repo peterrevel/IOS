@@ -20,6 +20,8 @@
 @property (nonatomic, strong) NSString *historyMessage;
 @property (nonatomic) NSInteger scoreOnDisplay;
 @property (nonatomic, strong) Card *previousCard;
+@property (nonatomic, strong) NSMutableArray *historyMessages;
+@property (weak, nonatomic) IBOutlet UISlider *historySlider;
 @end
 
 @implementation CardGameViewController
@@ -36,18 +38,26 @@
     return _historyMessage ? _historyMessage : @"";
 }
 
+- (NSMutableArray *)historyMessages{
+    if (!_historyMessages) _historyMessages = [[NSMutableArray alloc] init];
+    return _historyMessages;
+}
+
 # pragma mark Functionality Methods
 
 - (IBAction)touchCardButton:(UIButton *)sender {
     int index = (int)[self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:index];
     [self loadHistoryMessageForCardAtIndex:index];
+    self.historySlider.enabled = YES;
     [self updateUIWithSegControlEnabled:NO];
 }
 
 - (IBAction)dealAgain {
     self.game = nil;
     self.historyMessage = @"";
+    self.historySlider.enabled = NO;
+    self.historyMessages = nil;
     self.scoreOnDisplay = 0;
     [self updateUIWithSegControlEnabled:YES];
 }
@@ -78,9 +88,22 @@
         [cardButton setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
         cardButton.enabled = !card.isMathced;
     }
-    
+    [self.historyLabel setAlpha:1.0];
     self.scoreLabel.text = [NSString stringWithFormat:@"Score: %d", (int)self.game.score];
     self.historyLabel.text = self.historyMessage;
+}
+
+- (IBAction)sliderThroughHistory:(UISlider *)sender {
+    if (ceil(sender.value) == sender.maximumValue) {
+        [self.historyLabel setAlpha:1.0];
+    } else {
+        [self.historyLabel setAlpha:0.5];
+    }
+    int messageIndex = floor(sender.value);
+    if (sender.value == sender.maximumValue) {
+        messageIndex--;
+    }
+    self.historyLabel.text = [self.historyMessages objectAtIndex:messageIndex];
 }
 
 # pragma mark Back End
@@ -132,9 +155,13 @@
         // A mismatch occured
         self.historyMessage = [self.historyMessage stringByAppendingString:[NSString stringWithFormat:@" don't Match. (%ld pts)", scoreDelta]];
     }
-    
     self.scoreOnDisplay = self.game.score;
     self.previousCard = card;
+    if (![self.historyMessage isEqualToString:@""]) {
+        [self.historyMessages addObject:self.historyMessage];
+        [self.historySlider setMaximumValue:[self.historyMessages count]];
+        self.historySlider.value = self.historySlider.maximumValue;
+    }
 }
 
 @end

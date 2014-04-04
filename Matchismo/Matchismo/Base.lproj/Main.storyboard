@@ -414,12 +414,20 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="7cm-hH-Adx">
+                                <rect key="frame" x="18" y="458" width="284" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="sliderThroughHistory:" destination="vXZ-lx-hvc" eventType="valueChanged" id="yDI-4J-qPo"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.50196081399917603" blue="0.25098040699958801" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <connections>
                         <outlet property="gameModeSegControl" destination="eLu-aV-Isr" id="xcV-XK-vFl"/>
                         <outlet property="historyLabel" destination="AdM-64-AjI" id="xlZ-A6-pO4"/>
+                        <outlet property="historySlider" destination="7cm-hH-Adx" id="gr8-jo-7Sh"/>
                         <outlet property="scoreLabel" destination="WnH-ia-u24" id="Z97-pP-3Ww"/>
                         <outletCollection property="cardButtons" destination="xBX-1f-CaV" id="z66-1O-YYG"/>
                         <outletCollection property="cardButtons" destination="mYi-al-apa" id="bNK-Yn-lOu"/>
