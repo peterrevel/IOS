@@ -88,9 +88,17 @@
         [cardButton setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
         cardButton.enabled = !card.isMathced;
     }
-    [self.historyLabel setAlpha:1.0];
+    
     self.scoreLabel.text = [NSString stringWithFormat:@"Score: %d", (int)self.game.score];
+    self.scoreOnDisplay = self.game.score;
     self.historyLabel.text = self.historyMessage;
+    [self.historyLabel setAlpha:1.0];
+    // after message was displayed, push it onto the array of messages
+    if (![self.historyMessage isEqualToString:@""]) {
+        [self.historyMessages addObject:self.historyMessage];
+        [self.historySlider setMaximumValue:[self.historyMessages count]];
+        self.historySlider.value = self.historySlider.maximumValue;
+    }
 }
 
 - (IBAction)sliderThroughHistory:(UISlider *)sender {
@@ -128,23 +136,23 @@
     // clear out old message if there was a match or mismatch
     NSRange containsMissMatchMessage = [self.historyMessage rangeOfString:@"don't Match"];
     NSRange containsMatchMessage = [self.historyMessage rangeOfString:@"Matched"];
-    if (containsMissMatchMessage.length) {
+    if (containsMissMatchMessage.location == NSNotFound) {
         // If their was a mismatch, bring up the last card's contents
         self.historyMessage = [self.previousCard contents];
-    } else if (containsMatchMessage.length) {
+    } else if (containsMatchMessage.location == NSNotFound) {
         self.historyMessage = @"";
     }
     
     Card *card = [self.game cardAtIndex:index];
     NSRange range = [self.historyMessage rangeOfString:[card contents]];
-    if (range.length) {
-        // Card is already in the historyMessage, it must be removed
-        self.historyMessage = [[self.historyMessage substringToIndex:range.location] stringByAppendingString:[self.historyMessage substringFromIndex:(range.location + range.length)]];
-    } else {
-        //Card not already in historyMessage
+    if (range.location == NSNotFound) {
+        //Card not found in historyMessage
         if ([[self.game cardAtIndex:index] isChosen]) {
             self.historyMessage = [self.historyMessage stringByAppendingString:[[self.game cardAtIndex:index] contents]];
         }
+    } else {
+        // Card is already in the historyMessage, it must be removed
+        self.historyMessage = [[self.historyMessage substringToIndex:range.location] stringByAppendingString:[self.historyMessage substringFromIndex:(range.location + range.length)]];
     }
     
     NSInteger scoreDelta = self.game.score - self.scoreOnDisplay;
@@ -155,13 +163,7 @@
         // A mismatch occured
         self.historyMessage = [self.historyMessage stringByAppendingString:[NSString stringWithFormat:@" don't Match. (%ld pts)", scoreDelta]];
     }
-    self.scoreOnDisplay = self.game.score;
     self.previousCard = card;
-    if (![self.historyMessage isEqualToString:@""]) {
-        [self.historyMessages addObject:self.historyMessage];
-        [self.historySlider setMaximumValue:[self.historyMessages count]];
-        self.historySlider.value = self.historySlider.maximumValue;
-    }
 }
 
 @end

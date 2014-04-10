@@ -16,11 +16,14 @@
     int score = 0;
     
     if ([otherCards count]) {
-        for (PlayingCard *otherCard in otherCards) {
-            if ([self.suit isEqualToString:otherCard.suit]) {
-                score += 1;
-            } else if(self.rank == otherCard.rank) {
-                score += 4;
+        for (id obj in otherCards) {
+            if ([obj isKindOfClass:[PlayingCard class]]) {
+                PlayingCard *otherCard = (PlayingCard *)obj;
+                if ([self.suit isEqualToString:otherCard.suit]) {
+                    score += 1;
+                } else if(self.rank == otherCard.rank) {
+                    score += 4;
+                }
             }
         }
     }
@@ -29,7 +32,7 @@
     // the next card in otherCards must be compared to all other cards in
     // otherCards
     PlayingCard *nextCard = [otherCards lastObject];
-    NSMutableArray *otherCardsMutable = [[NSMutableArray alloc] initWithArray:otherCards];
+    NSMutableArray *otherCardsMutable = [otherCards mutableCopy];
     [otherCardsMutable removeLastObject];
     
     return score + [nextCard match:otherCardsMutable];
