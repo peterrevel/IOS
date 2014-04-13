@@ -7,26 +7,35 @@
 //
 
 #import "CardGameViewController.h"
-#import "PlayingCardDeck.h"
 #import "Card.h"
+#import "HistoryDisplayViewController.h"
 #import "CardMathcingGame.h"
 
 @interface CardGameViewController ()
 @property (nonatomic, strong) CardMathcingGame *game;
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (strong, nonatomic) IBOutletCollection(UIButton) NSArray *cardButtons;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *gameModeSegControl;
 @property (weak, nonatomic) IBOutlet UILabel *historyLabel;
 @property (nonatomic, strong) NSString *historyMessage;
 @property (nonatomic) NSInteger scoreOnDisplay;
 @property (nonatomic, strong) Card *previousCard;
 @property (nonatomic, strong) NSMutableArray *historyMessages;
-@property (weak, nonatomic) IBOutlet UISlider *historySlider;
 @end
 
 @implementation CardGameViewController
 
-# pragma mark Accessor Methods
+# pragma mark - LifeCycle
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    if ([segue.identifier isEqualToString:@"Display History"]) {
+        if ([segue.destinationViewController isKindOfClass:[HistoryDisplayViewController class]]) {
+            HistoryDisplayViewController *hdvc = (HistoryDisplayViewController *)segue.destinationViewController;
+            [hdvc setHistoryText:self.historyMessages];
+        }
+    }
+}
+
+# pragma mark - Accessor Methods
 
 - (CardMathcingGame *)game{
     if (!_game) _game = [[CardMathcingGame alloc] initWithCardCount:[self.cardButtons count]
@@ -49,36 +58,18 @@
     int index = (int)[self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:index];
     [self loadHistoryMessageForCardAtIndex:index];
-    self.historySlider.enabled = YES;
-    [self updateUIWithSegControlEnabled:NO];
+    [self updateUI];
 }
 
 - (IBAction)dealAgain {
     self.game = nil;
     self.historyMessage = @"";
-    self.historySlider.enabled = NO;
     self.historyMessages = nil;
     self.scoreOnDisplay = 0;
-    [self updateUIWithSegControlEnabled:YES];
-}
-
-# pragma mark User Interface
-
-- (IBAction)toggleMatchMode:(UISegmentedControl *)sender {
-    // The game mode should really only be updatable upon
-    // the creation of a new game
-    NSInteger matchMode = [sender selectedSegmentIndex] + 2;
-    [self.game setCardsToMatch:matchMode];
-}
-
-- (void)updateUIWithSegControlEnabled:(BOOL)enabled{
-    if (enabled) {
-        self.gameModeSegControl.enabled = YES;
-    } else {
-        self.gameModeSegControl.enabled = NO;
-    }
     [self updateUI];
 }
+
+# pragma mark - User Interface
 
 - (void)updateUI{
     for (UIButton *cardButton in self.cardButtons) {
@@ -96,28 +87,13 @@
     // after message was displayed, push it onto the array of messages
     if (![self.historyMessage isEqualToString:@""]) {
         [self.historyMessages addObject:self.historyMessage];
-        [self.historySlider setMaximumValue:[self.historyMessages count]];
-        self.historySlider.value = self.historySlider.maximumValue;
     }
 }
 
-- (IBAction)sliderThroughHistory:(UISlider *)sender {
-    if (ceil(sender.value) == sender.maximumValue) {
-        [self.historyLabel setAlpha:1.0];
-    } else {
-        [self.historyLabel setAlpha:0.5];
-    }
-    int messageIndex = floor(sender.value);
-    if (sender.value == sender.maximumValue) {
-        messageIndex--;
-    }
-    self.historyLabel.text = [self.historyMessages objectAtIndex:messageIndex];
-}
+# pragma mark - Back End
 
-# pragma mark Back End
-
-- (Deck *)createDeck{
-    return [[PlayingCardDeck alloc] init];
+- (Deck *)createDeck{ // abstract
+    return nil;
 }
 
 - (NSString *)titleForCard:(Card *)card{
@@ -128,7 +104,6 @@
     return [UIImage imageNamed:card.isChosen ? @"cardFront" : @"cardBack"];
 }
 
-
 // doesnt work in the following cases:
 // 1. Mismatch
 // 2. Card deselected way back in history
@@ -136,17 +111,17 @@
     // clear out old message if there was a match or mismatch
     NSRange containsMissMatchMessage = [self.historyMessage rangeOfString:@"don't Match"];
     NSRange containsMatchMessage = [self.historyMessage rangeOfString:@"Matched"];
-    if (containsMissMatchMessage.location == NSNotFound) {
+    if (containsMissMatchMessage.location != NSNotFound) {
         // If their was a mismatch, bring up the last card's contents
         self.historyMessage = [self.previousCard contents];
-    } else if (containsMatchMessage.location == NSNotFound) {
+    } else if (containsMatchMessage.location != NSNotFound) {
         self.historyMessage = @"";
     }
     
     Card *card = [self.game cardAtIndex:index];
     NSRange range = [self.historyMessage rangeOfString:[card contents]];
     if (range.location == NSNotFound) {
-        //Card not found in historyMessage
+        // Card not already in historyMessage
         if ([[self.game cardAtIndex:index] isChosen]) {
             self.historyMessage = [self.historyMessage stringByAppendingString:[[self.game cardAtIndex:index] contents]];
         }
