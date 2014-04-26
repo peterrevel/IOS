@@ -22,22 +22,25 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    self.view.backgroundColor = self.backgroundColor;
+    self.historyTextView.backgroundColor = self.backgroundColor;
     [self updateUI];
 }
 
-- (NSString *)formatedHistoryMessage{
-    NSString *historyToDisplay = [[NSString alloc] init];
+- (NSAttributedString *)formatedHistoryMessage{
+    NSMutableAttributedString *historyToDisplay = [[NSMutableAttributedString alloc] init];
     for (id obj in self.historyText) {
-        if ([obj isKindOfClass:[NSString class]]) {
-            NSString *historyMessage = (NSString *)obj;
-            historyToDisplay = [historyToDisplay stringByAppendingString:[historyMessage stringByAppendingString:@"\n"]];
+        if ([obj isMemberOfClass:[NSAttributedString class]]) {
+            NSAttributedString *historyMessage = (NSAttributedString *)obj;
+            [historyToDisplay appendAttributedString:historyMessage];
+            [historyToDisplay appendAttributedString:[[NSAttributedString alloc] initWithString:@"/n"]];
         }
     }
     return historyToDisplay;
 }
 
 - (void)updateUI{
-    self.historyTextView.text = [self formatedHistoryMessage];
+    self.historyTextView.attributedText = [self formatedHistoryMessage];
 }
 
 /*

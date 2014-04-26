@@ -12,6 +12,7 @@
 
 @property (nonatomic, readwrite) NSInteger score;
 @property (nonatomic, strong) NSMutableArray *cards; //of card
+@property (nonatomic) NSInteger cardsToMatch;
 @end
 
 @implementation CardMathcingGame
@@ -20,16 +21,11 @@
 #define MATCH_BONUS 4;
 #define COST_TO_CHOOSE 1;
 
-- (NSMutableArray *)cards{
-    if (!_cards) _cards = [[NSMutableArray alloc] init];
-    return _cards;
-}
-
-- (instancetype)initWithCardCount:(NSUInteger)count usingDeck:(Deck *)deck{
+- (instancetype)initWithCardCount:(NSUInteger)count usingDeck:(Deck *)deck cardsToMatch:(NSInteger)numberOfCards{
     self = [super init];
     if (self) {
         // default to matching 2 cards
-        self.cardsToMatch = 2;
+        self.cardsToMatch = numberOfCards;
         // load cards
         for (int i = 0; i < count; i++) {
             Card *card = [deck drawRandomCard];
@@ -42,6 +38,19 @@
         }
     }
     return self;
+}
+
+- (NSMutableArray *)cards{
+    if (!_cards) _cards = [[NSMutableArray alloc] init];
+    return _cards;
+}
+
+- (void)setCardsToMatch:(NSInteger)cardsToMatch{
+    if (cardsToMatch < 2) {
+        _cardsToMatch = 2;
+    } else {
+        _cardsToMatch = cardsToMatch;
+    }
 }
 
 - (void)chooseCardAtIndex:(NSUInteger)index{
@@ -90,5 +99,4 @@
 - (Card *)cardAtIndex:(NSUInteger)index{
     return (index < [self.cards count]) ? self.cards[index] : nil;
 }
-
 @end

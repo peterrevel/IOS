@@ -16,10 +16,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (strong, nonatomic) IBOutletCollection(UIButton) NSArray *cardButtons;
 @property (weak, nonatomic) IBOutlet UILabel *historyLabel;
-@property (nonatomic, strong) NSString *historyMessage;
 @property (nonatomic) NSInteger scoreOnDisplay;
 @property (nonatomic, strong) Card *previousCard;
 @property (nonatomic, strong) NSMutableArray *historyMessages;
+@property (weak, nonatomic) IBOutlet UINavigationItem *titleItem;
 @end
 
 @implementation CardGameViewController
@@ -31,20 +31,23 @@
         if ([segue.destinationViewController isKindOfClass:[HistoryDisplayViewController class]]) {
             HistoryDisplayViewController *hdvc = (HistoryDisplayViewController *)segue.destinationViewController;
             [hdvc setHistoryText:self.historyMessages];
+            [hdvc setBackgroundColor:self.view.backgroundColor];
         }
     }
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationItem.title = @"Score: 0";
 }
 
 # pragma mark - Accessor Methods
 
 - (CardMathcingGame *)game{
     if (!_game) _game = [[CardMathcingGame alloc] initWithCardCount:[self.cardButtons count]
-                                                          usingDeck:[self createDeck]];
+                                                          usingDeck:[self createDeck]
+                                                       cardsToMatch:[self cardsToMatch]];
     return _game;
-}
-
-- (NSString *)historyMessage{
-    return _historyMessage ? _historyMessage : @"";
 }
 
 - (NSMutableArray *)historyMessages{
@@ -57,13 +60,12 @@
 - (IBAction)touchCardButton:(UIButton *)sender {
     int index = (int)[self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:index];
-    [self loadHistoryMessageForCardAtIndex:index];
+    [self pushMoveMessageOntoHistoryStackForCardAtIndex:index];
     [self updateUI];
 }
 
 - (IBAction)dealAgain {
     self.game = nil;
-    self.historyMessage = @"";
     self.historyMessages = nil;
     self.scoreOnDisplay = 0;
     [self updateUI];
@@ -75,19 +77,14 @@
     for (UIButton *cardButton in self.cardButtons) {
         int cardIndex = (int)[self.cardButtons indexOfObject:cardButton];
         Card *card = [self.game cardAtIndex:cardIndex];
-        [cardButton setTitle:[self titleForCard:card] forState:UIControlStateNormal];
+        [cardButton setAttributedTitle:[self titleForCard:card] forState:UIControlStateNormal];
         [cardButton setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
         cardButton.enabled = !card.isMathced;
     }
     
-    self.scoreLabel.text = [NSString stringWithFormat:@"Score: %d", (int)self.game.score];
+    self.navigationItem.title = [NSString stringWithFormat:@"Score: %d", (int)self.game.score];
     self.scoreOnDisplay = self.game.score;
-    self.historyLabel.text = self.historyMessage;
-    [self.historyLabel setAlpha:1.0];
-    // after message was displayed, push it onto the array of messages
-    if (![self.historyMessage isEqualToString:@""]) {
-        [self.historyMessages addObject:self.historyMessage];
-    }
+    self.historyLabel.attributedText = [self.historyMessages lastObject];
 }
 
 # pragma mark - Back End
@@ -96,17 +93,23 @@
     return nil;
 }
 
-- (NSString *)titleForCard:(Card *)card{
-    return (card.isChosen) ? card.contents : @"";
+- (NSInteger)cardsToMatch{
+    return 0;
+}
+
+- (NSAttributedString *)titleForCard:(Card *)card{
+    return (card.isChosen) ? [[NSAttributedString alloc] initWithString:card.contents attributes:@{NSForegroundColorAttributeName: [UIColor blackColor]}] : nil;
 }
 
 - (UIImage *)backgroundImageForCard:(Card *)card{
     return [UIImage imageNamed:card.isChosen ? @"cardFront" : @"cardBack"];
 }
 
-// doesnt work in the following cases:
-// 1. Mismatch
-// 2. Card deselected way back in history
+- (void)pushMoveMessageOntoHistoryStackForCardAtIndex:(NSInteger)index{
+    return;
+}
+
+/*
 - (void)loadHistoryMessageForCardAtIndex:(NSInteger)index{
     // clear out old message if there was a match or mismatch
     NSRange containsMissMatchMessage = [self.historyMessage rangeOfString:@"don't Match"];
@@ -139,6 +142,12 @@
         self.historyMessage = [self.historyMessage stringByAppendingString:[NSString stringWithFormat:@" don't Match. (%ld pts)", scoreDelta]];
     }
     self.previousCard = card;
+    
+    // after message was displayed, push it onto the array of messages
+    if (![self.historyMessage isEqualToString:@""]) {
+        [self.historyMessages addObject:self.historyMessage];
+    }
 }
+ */
 
 @end

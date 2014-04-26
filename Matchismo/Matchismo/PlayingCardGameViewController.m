@@ -19,6 +19,10 @@
     return [[PlayingCardDeck alloc] init];
 }
 
+- (NSInteger)cardsToMatch{
+    return 2;
+}
+
 /*
 #pragma mark - Navigation
 

@@ -11,5 +11,6 @@
 @interface HistoryDisplayViewController : UIViewController
 
 @property(nonatomic, strong) NSArray * historyText;
+@property(nonatomic, strong) UIColor *backgroundColor;
 
 @end
