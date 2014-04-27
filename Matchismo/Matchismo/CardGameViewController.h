@@ -16,7 +16,7 @@
 // for subclasses
 - (Deck *)createDeck; // abstract
 - (NSInteger)cardsToMatch; //abstract
-- (NSAttributedString *)titleForCard:(Card *)card; // Override to customize
+- (NSAttributedString *)titleForCard:(Card *)card byPass:(BOOL)byPass; // Override to customize
 - (UIImage *)backgroundImageForCard:(Card *)card; // Override to customize
 
 @end

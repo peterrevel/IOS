@@ -30,10 +30,12 @@
 - (NSAttributedString *)formatedHistoryMessage{
     NSMutableAttributedString *historyToDisplay = [[NSMutableAttributedString alloc] init];
     for (id obj in self.historyText) {
-        if ([obj isMemberOfClass:[NSAttributedString class]]) {
+        if ([obj isKindOfClass:[NSAttributedString class]]) {
             NSAttributedString *historyMessage = (NSAttributedString *)obj;
-            [historyToDisplay appendAttributedString:historyMessage];
-            [historyToDisplay appendAttributedString:[[NSAttributedString alloc] initWithString:@"/n"]];
+            if ([historyMessage length]) {
+                [historyToDisplay appendAttributedString:historyMessage];
+                [historyToDisplay appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
+            }
         }
     }
     return historyToDisplay;

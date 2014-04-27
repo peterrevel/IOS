@@ -54,7 +54,7 @@
 #pragma mark - Overridden Methods
 
 // here is where I sync UIAttributes to a card's contents
-- (NSAttributedString *)titleForCard:(Card *)card{
+- (NSAttributedString *)titleForCard:(Card *)card byPass:(BOOL)byPass{
     return [self renderedSetCardContentsForCard:card];
 }
 

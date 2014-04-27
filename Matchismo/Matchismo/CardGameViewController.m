@@ -13,11 +13,10 @@
 
 @interface CardGameViewController ()
 @property (nonatomic, strong) CardMathcingGame *game;
-@property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (strong, nonatomic) IBOutletCollection(UIButton) NSArray *cardButtons;
 @property (weak, nonatomic) IBOutlet UILabel *historyLabel;
 @property (nonatomic) NSInteger scoreOnDisplay;
-@property (nonatomic, strong) Card *previousCard;
+@property (nonatomic, strong) NSMutableOrderedSet *cardsAtPlay; // of card
 @property (nonatomic, strong) NSMutableArray *historyMessages;
 @property (weak, nonatomic) IBOutlet UINavigationItem *titleItem;
 @end
@@ -55,18 +54,34 @@
     return _historyMessages;
 }
 
+- (NSMutableOrderedSet *)cardsAtPlay{
+    if (!_cardsAtPlay) _cardsAtPlay = [[NSMutableOrderedSet alloc] init];
+    return _cardsAtPlay;
+}
+
 # pragma mark Functionality Methods
+
+- (void)addToPlaySetCardAtIndex:(NSInteger)index{
+    Card *card = [self.game cardAtIndex:index];
+    if ([self.cardsAtPlay containsObject:card]) {
+        [self.cardsAtPlay removeObject:card];
+    } else {
+        [self.cardsAtPlay addObject:card];
+    }
+}
 
 - (IBAction)touchCardButton:(UIButton *)sender {
     int index = (int)[self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:index];
-    [self pushMoveMessageOntoHistoryStackForCardAtIndex:index];
+    [self addToPlaySetCardAtIndex:index];
+    [self pushMoveMessageOntoHistoryMessagesForCardAtIndex:index];
     [self updateUI];
 }
 
 - (IBAction)dealAgain {
     self.game = nil;
     self.historyMessages = nil;
+    self.cardsAtPlay = nil;
     self.scoreOnDisplay = 0;
     [self updateUI];
 }
@@ -77,7 +92,7 @@
     for (UIButton *cardButton in self.cardButtons) {
         int cardIndex = (int)[self.cardButtons indexOfObject:cardButton];
         Card *card = [self.game cardAtIndex:cardIndex];
-        [cardButton setAttributedTitle:[self titleForCard:card] forState:UIControlStateNormal];
+        [cardButton setAttributedTitle:[self titleForCard:card byPass:NO] forState:UIControlStateNormal];
         [cardButton setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
         cardButton.enabled = !card.isMathced;
     }
@@ -97,57 +112,48 @@
     return 0;
 }
 
-- (NSAttributedString *)titleForCard:(Card *)card{
-    return (card.isChosen) ? [[NSAttributedString alloc] initWithString:card.contents attributes:@{NSForegroundColorAttributeName: [UIColor blackColor]}] : nil;
+- (NSAttributedString *)titleForCard:(Card *)card byPass:(BOOL)byPass{
+    return (card.isChosen || byPass) ? [[NSAttributedString alloc] initWithString:card.contents attributes:@{NSForegroundColorAttributeName: [UIColor blackColor]}] : nil;
 }
 
 - (UIImage *)backgroundImageForCard:(Card *)card{
     return [UIImage imageNamed:card.isChosen ? @"cardFront" : @"cardBack"];
 }
 
-- (void)pushMoveMessageOntoHistoryStackForCardAtIndex:(NSInteger)index{
-    return;
+- (NSAttributedString *)cardsAtPlayContents{
+    NSMutableAttributedString *contents = [[NSMutableAttributedString alloc] init];
+    for (Card *card in self.cardsAtPlay) {
+        [contents appendAttributedString:[self titleForCard:card byPass:YES]];
+    }
+    return contents;
 }
 
-/*
-- (void)loadHistoryMessageForCardAtIndex:(NSInteger)index{
-    // clear out old message if there was a match or mismatch
-    NSRange containsMissMatchMessage = [self.historyMessage rangeOfString:@"don't Match"];
-    NSRange containsMatchMessage = [self.historyMessage rangeOfString:@"Matched"];
-    if (containsMissMatchMessage.location != NSNotFound) {
-        // If their was a mismatch, bring up the last card's contents
-        self.historyMessage = [self.previousCard contents];
-    } else if (containsMatchMessage.location != NSNotFound) {
-        self.historyMessage = @"";
-    }
-    
-    Card *card = [self.game cardAtIndex:index];
-    NSRange range = [self.historyMessage rangeOfString:[card contents]];
-    if (range.location == NSNotFound) {
-        // Card not already in historyMessage
-        if ([[self.game cardAtIndex:index] isChosen]) {
-            self.historyMessage = [self.historyMessage stringByAppendingString:[[self.game cardAtIndex:index] contents]];
-        }
-    } else {
-        // Card is already in the historyMessage, it must be removed
-        self.historyMessage = [[self.historyMessage substringToIndex:range.location] stringByAppendingString:[self.historyMessage substringFromIndex:(range.location + range.length)]];
-    }
-    
+- (NSString *)didTheUserScore{
     NSInteger scoreDelta = self.game.score - self.scoreOnDisplay;
     if (scoreDelta > 0) {
         // A match was found
-        self.historyMessage = [self.historyMessage stringByAppendingString:[NSString stringWithFormat:@" Matched! (+%ld pts)", scoreDelta]];
+        [self.cardsAtPlay removeAllObjects];
+        return [NSString stringWithFormat:@" Matched! (+%ld pts)", scoreDelta];
     } else if(scoreDelta < -1) {
         // A mismatch occured
-        self.historyMessage = [self.historyMessage stringByAppendingString:[NSString stringWithFormat:@" don't Match. (%ld pts)", scoreDelta]];
+        [self.cardsAtPlay removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.game.cardsToMatch - 1)]];
+        return [NSString stringWithFormat:@" don't match. (%ld pts)", scoreDelta];
     }
-    self.previousCard = card;
-    
-    // after message was displayed, push it onto the array of messages
-    if (![self.historyMessage isEqualToString:@""]) {
-        [self.historyMessages addObject:self.historyMessage];
-    }
+    return @"";
 }
- */
+
+- (void)pushMoveMessageOntoHistoryMessagesForCardAtIndex:(NSInteger)index{
+    NSMutableAttributedString *moveMessage = [[NSMutableAttributedString alloc] init];
+    
+    if ([self.cardsAtPlay count] == self.game.cardsToMatch) {
+        [moveMessage appendAttributedString:[self cardsAtPlayContents]];
+        [moveMessage appendAttributedString:[[NSAttributedString alloc] initWithString:[self didTheUserScore]]];
+        
+    } else if ([self.cardsAtPlay count]) {
+        [moveMessage appendAttributedString:[self cardsAtPlayContents]];
+    }
+    
+    [self.historyMessages addObject:moveMessage];
+}
 
 @end

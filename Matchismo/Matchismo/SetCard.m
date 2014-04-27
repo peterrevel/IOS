@@ -42,6 +42,7 @@
     } else {
         response = NO;
     }
+    NSLog(@"Set is of size: %lu", [set count]);
     return response;
 }
 
@@ -68,7 +69,7 @@
         [self isValidSet:shapes]) {
         score = 5;
     }
-    
+    NSLog(@"---------");
     return score;
 }
 
