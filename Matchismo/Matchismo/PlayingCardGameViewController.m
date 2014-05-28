@@ -15,6 +15,13 @@
 
 @implementation PlayingCardGameViewController
 
+- (void)viewDidAppear:(BOOL)animated{
+    NSLog(@"You have 6 seconods to live. Failed attempt at network requets.");
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"Boom!!! Explosion. I'm going to try again to pull that data you requested.");
+    });
+}
+
 - (Deck *)createDeck{
     return [[PlayingCardDeck alloc] init];
 }
