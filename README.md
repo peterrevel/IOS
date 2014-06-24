@@ -1,4 +1,5 @@
 IOS
 ===
 
-This repository holds sample work I am currently working on relating to the IOS environment programmed in Objective-C.
+Language: Objective-C
+Description: This repository holds sample work I've written on my journey to master iOS development. I have more samples stored privately under my previous employer's, Circle's, repo.
