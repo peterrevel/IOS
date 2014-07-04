@@ -11,8 +11,8 @@
 
 @interface ViewController ()
 @property (nonatomic, weak) PRButton *buttonOne;
-@property (nonatomic, strong) UIDynamicAnimator *animator;
 @property (nonatomic, strong) NSArray *buttons;
+@property (nonatomic, strong) UIDynamicAnimator *animator;
 @end
 
 @implementation ViewController
@@ -34,6 +34,12 @@
     [self setupViews];
 }
 
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    self.buttonOne.center = CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) + CGRectGetHeight(self.buttonOne.bounds));
+    [self stringButtonsTogether];
+}
+
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     [self intitiateGravity];
@@ -41,12 +47,6 @@
 }
 
 #pragma mark - Views
-
-- (void)viewDidLayoutSubviews{
-    [super viewDidLayoutSubviews];
-    self.buttonOne.center = CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) + CGRectGetHeight(self.buttonOne.bounds));
-    [self stringButtonsTogether];
-}
 
 - (void)stringButtonsTogether{
     int nextY = CGRectGetMaxY(self.buttonOne.frame) + 10.0f;
@@ -98,7 +98,7 @@
 }
 
 - (void)presentButtons{
-    UISnapBehavior *snapBehavior = [[UISnapBehavior alloc] initWithItem:self.buttonOne snapToPoint:CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) - 120.0f)];
+    UISnapBehavior *snapBehavior = [[UISnapBehavior alloc] initWithItem:self.buttonOne snapToPoint:CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) - 140.0f)];
     __weak ViewController *_weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [_weakSelf.animator addBehavior:snapBehavior];
@@ -110,6 +110,7 @@
     
     PRButton *buttonOne = [PRButton new];
     buttonOne.translatesAutoresizingMaskIntoConstraints = NO;
+    buttonOne.alpha = 1.0f;
     buttonOne.tintColor = [UIColor orangeColor];
     buttonOne.style = PRButtonStylePlain;
     [buttonOne setTitle:@"Hello" forState:UIControlStateNormal];
@@ -118,6 +119,7 @@
     
     PRButton *buttonTwo = [PRButton new];
     buttonTwo.translatesAutoresizingMaskIntoConstraints = NO;
+    buttonTwo.alpha = buttonOne.alpha;
     buttonTwo.tintColor = [UIColor orangeColor];
     buttonTwo.style = PRButtonStyleBordered;
     [buttonTwo setTitle:@"World" forState:UIControlStateNormal];
