@@ -6,7 +6,7 @@ Description:
 This repository holds sample work I've written on my journey to master iOS development. I have more samples stored privately under my previous employer's, Circle's, repo: likealitle/iphone.
 
 Key
-Matchismo: Mathcing Cards Game
+Matchismo: Mathcing Cards Game \n
 Dropit: Playing around UIDynamics. Touch screen to create and drop a square.
 SuperCard: Playing with UIGestures. Flip a card with Pan Gesture
 Attributer: Exploring the world of Attributed strings. Can achieve some really nice UI effects this way.
