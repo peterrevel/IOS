@@ -7,7 +7,7 @@ This repository holds sample work I've written on my journey to master iOS devel
 
 Key
 -
-Matchismo: Mathcing Cards Game __
+Matchismo: Matching Cards Game __
 Dropit: Playing around UIDynamics. Touch screen to create and drop a square. __
 SuperCard: Playing with UIGestures. Flip a card with Pan Gesture __
 Attributer: Exploring the world of Attributed strings. Can achieve some really nice UI effects this way. __
