@@ -35,7 +35,7 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    self.layer.cornerRadius = CGRectGetHeight(self.bounds) / 2.0f;
+    self.layer.cornerRadius = CGRectGetHeight(self.bounds) / 4.0f;
 }
 
 - (void)tintColorDidChange {

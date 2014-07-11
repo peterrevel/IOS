@@ -43,7 +43,8 @@
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     [self intitiateGravity];
-    [self presentButtons];
+    [self addCollisionBehavior];
+    [self presentButtonsWithDelay:0.4];
 }
 
 #pragma mark - Views
@@ -66,6 +67,7 @@
             leftOffset = UIOffsetMake(-width/2.0f, 0.0f);
             rightOffset = UIOffsetMake(width/2.0f, 0.0f);
         }
+        // I'm ataching the buttons in a crisscross because I found it has better effects visually
         UIAttachmentBehavior *leftAttachment = [[UIAttachmentBehavior alloc] initWithItem:button offsetFromCenter:leftOffset attachedToItem:previousButton offsetFromCenter:rightOffset];
         UIAttachmentBehavior *rightAttachment = [[UIAttachmentBehavior alloc] initWithItem:button offsetFromCenter:rightOffset attachedToItem:previousButton offsetFromCenter:leftOffset];
         leftAttachment.frequency = 7.0f;
@@ -84,23 +86,36 @@
 }
 
 - (void)intitiateGravity{
-    UIDynamicItemBehavior *angularResistanceBehavior_allButtons = [[UIDynamicItemBehavior alloc] initWithItems:self.buttons];
-    UIDynamicItemBehavior *angularResistanceBehavior_topButton = [[UIDynamicItemBehavior alloc] initWithItems:@[self.buttonOne]];
-    angularResistanceBehavior_allButtons.angularResistance = 140.0f;
-    angularResistanceBehavior_topButton.angularResistance = angularResistanceBehavior_allButtons.angularResistance;
-    [self.animator addBehavior:angularResistanceBehavior_allButtons];
-    [self.animator addBehavior:angularResistanceBehavior_topButton];
+    UIDynamicItemBehavior *standardDynamicItemBehavior_allButtons = [[UIDynamicItemBehavior alloc] initWithItems:self.buttons];
+    standardDynamicItemBehavior_allButtons.angularResistance = 140.0f;
+    [self.animator addBehavior:standardDynamicItemBehavior_allButtons];
     
-    UIGravityBehavior *gravity = [[UIGravityBehavior alloc] initWithItems:self.buttons];
+    UIDynamicItemBehavior *standardDynamicItemBehavior_topButton = [[UIDynamicItemBehavior alloc] initWithItems:@[self.buttonOne]];
+    standardDynamicItemBehavior_topButton.allowsRotation = NO;
+    [self.animator addBehavior:standardDynamicItemBehavior_topButton];
+    
+    NSArray *allButtons = [self.buttons arrayByAddingObject:self.buttonOne];
+    UIGravityBehavior *gravity = [[UIGravityBehavior alloc] initWithItems:allButtons];
     gravity.magnitude = 1.0f;
     gravity.gravityDirection = CGVectorMake(0.0f, 1.0f);
     [self.animator addBehavior:gravity];
 }
 
-- (void)presentButtons{
+- (void)addCollisionBehavior{
+    NSArray *allButtons = [self.buttons arrayByAddingObject:self.buttonOne];
+    UIDynamicItemBehavior *elasticityBehavior = [[UIDynamicItemBehavior alloc] initWithItems:allButtons];
+    elasticityBehavior.elasticity = 1.0f;
+    [self.animator addBehavior:elasticityBehavior];
+    
+    UICollisionBehavior *buttonCollisionBehavior = [[UICollisionBehavior alloc] initWithItems:allButtons];
+    buttonCollisionBehavior.collisionMode = UICollisionBehaviorModeItems;
+    [self.animator addBehavior:buttonCollisionBehavior];
+}
+
+- (void)presentButtonsWithDelay:(NSTimeInterval)delay{
     UISnapBehavior *snapBehavior = [[UISnapBehavior alloc] initWithItem:self.buttonOne snapToPoint:CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) - 140.0f)];
     __weak ViewController *_weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [_weakSelf.animator addBehavior:snapBehavior];
     });
 }

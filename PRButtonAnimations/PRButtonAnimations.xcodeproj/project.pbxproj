@@ -61,6 +61,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3E731487196F5DB9004A2435 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				3E80A639196520EC00636F26 /* PRButton.h */,
+				3E80A63A196520EC00636F26 /* PRButton.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		3E80A60A196520C000636F26 = {
 			isa = PBXGroup;
 			children = (
@@ -86,8 +95,7 @@
 				3E80A61B196520C000636F26 /* AppDelegate.m */,
 				3E80A61D196520C000636F26 /* ViewController.h */,
 				3E80A61E196520C000636F26 /* ViewController.m */,
-				3E80A639196520EC00636F26 /* PRButton.h */,
-				3E80A63A196520EC00636F26 /* PRButton.m */,
+				3E731487196F5DB9004A2435 /* Model */,
 				3E80A620196520C000636F26 /* Main.storyboard */,
 				3E80A623196520C000636F26 /* Images.xcassets */,
 				3E80A616196520C000636F26 /* Supporting Files */,
@@ -410,6 +418,7 @@
 				3E80A635196520C000636F26 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3E80A636196520C000636F26 /* Build configuration list for PBXNativeTarget "PRButtonAnimationsTests" */ = {
 			isa = XCConfigurationList;
@@ -418,6 +427,7 @@
 				3E80A638196520C000636F26 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
