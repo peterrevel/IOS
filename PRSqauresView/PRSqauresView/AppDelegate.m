@@ -1,8 +1,8 @@
 //
 //  AppDelegate.m
-//  PRButtonAnimations
+//  PRSqauresView
 //
-//  Created by Peter Reveles on 7/2/14.
+//  Created by Peter Reveles on 7/30/14.
 //  Copyright (c) 2014 Peter Reveles. All rights reserved.
 //
 
@@ -13,7 +13,8 @@
 
 @end
 
-@implementation AppDelegate            
+@implementation AppDelegate
+            
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.

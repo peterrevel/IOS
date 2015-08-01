@@ -6,17 +6,17 @@
 //  Copyright (c) 2014 Peter Reveles. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "PRPresentationViewController.h"
 #import "PRButton.h"
 
-@interface ViewController () <UIDynamicAnimatorDelegate>
+@interface PRPresentationViewController () <UIDynamicAnimatorDelegate>
 @property (nonatomic, weak) PRButton *buttonOne;
 @property (nonatomic, strong) NSArray *buttons;
 @property (nonatomic, strong) UIDynamicAnimator *animator;
 @property (nonatomic) BOOL shouldClearBehaviors;
 @end
 
-@implementation ViewController
+@implementation PRPresentationViewController
 
 #pragma mark - UIDynamicAnimatorDelegate
 
@@ -125,7 +125,7 @@
 
 - (void)presentButtonsWithDelay:(NSTimeInterval)delay{
     UISnapBehavior *snapBehavior = [[UISnapBehavior alloc] initWithItem:self.buttonOne snapToPoint:CGPointMake(self.buttonOne.center.x, CGRectGetMaxY([[UIScreen mainScreen] bounds]) - 140.0f)];
-    __weak ViewController *_weakSelf = self;
+    __weak PRPresentationViewController *_weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [_weakSelf.animator addBehavior:snapBehavior];
         _weakSelf.shouldClearBehaviors = YES;
